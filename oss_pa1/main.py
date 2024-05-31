@@ -15,6 +15,7 @@ pygame.display.set_caption("Falling Alphabet Game")
 black = (0, 0, 0)
 white = (255, 255, 255)
 red = (255, 0, 0)
+sky_blue = (135, 206, 235)
 
 # 폰트 설정
 font = pygame.font.Font(None, 74)
@@ -34,12 +35,32 @@ current_word = random.choice(words)
 alphabet_line = []
 falling_lines = []
 
+# 장애물 이미지 로드 및 크기 설정
+block_image = pygame.image.load("block.png")
+block_size = (int(block_image.get_width() * 0.7), int(block_image.get_height() * 0.7))
+block_image = pygame.transform.scale(block_image, block_size)
+
 # 장애물 설정
-obstacles = []
-for _ in range(len(current_word)):
-    x = random.randint(0, screen_width - 50)
-    y = random.randint(50, screen_height // 3)  # 장애물을 화면 상단에 배치
-    obstacles.append(pygame.Rect(x, y, 50, 50))
+def create_obstacles(word_length, block_size):
+    obstacles = []
+    while len(obstacles) < word_length:
+        x = random.randint(0, screen_width - block_size[0])
+        y = random.randint(50, screen_height // 3)
+        new_obstacle = pygame.Rect(x, y, *block_size)
+        
+        # Check for overlap
+        overlap = False
+        for obstacle in obstacles:
+            if new_obstacle.colliderect(obstacle):
+                overlap = True
+                break
+        
+        if not overlap:
+            obstacles.append(new_obstacle)
+    
+    return obstacles
+
+obstacles = create_obstacles(len(current_word), block_size)
 
 # 마리오 이미지 설정
 mario_image = pygame.image.load("mario.png")
@@ -159,7 +180,7 @@ while running:
         for alphabet in line:
             alphabet.update()
 
-    screen.fill(black)
+    screen.fill(sky_blue)  # 배경 색상을 하늘색으로 설정
 
     x = (screen_width - len(alphabet_line) * 40) // 2
     y = screen_height - 150  # 입력된 알파벳 줄 위치 조정
@@ -173,7 +194,7 @@ while running:
             alphabet.draw(screen)
 
     for obstacle in obstacles:
-        pygame.draw.rect(screen, red, obstacle)
+        screen.blit(block_image, obstacle.topleft)
 
     if mario:
         screen.blit(mario_image, mario_rect.topleft)
