@@ -40,6 +40,10 @@ block_image = pygame.image.load("block.png")
 block_size = (int(block_image.get_width() * 0.7), int(block_image.get_height() * 0.7))
 block_image = pygame.transform.scale(block_image, block_size)
 
+# 배경 이미지 로드 및 크기 설정
+map_image = pygame.image.load("map.png")
+map_image = pygame.transform.scale(map_image, (screen_width, map_image.get_height() // 3))
+
 # 장애물 설정
 def create_obstacles(word_length, block_size):
     obstacles = []
@@ -64,8 +68,9 @@ obstacles = create_obstacles(len(current_word), block_size)
 
 # 마리오 이미지 설정
 mario_image = pygame.image.load("mario.png")
+mario_image = pygame.transform.scale(mario_image, (60, 60)) 
 mario_rect = mario_image.get_rect()
-mario_speed = 15
+mario_speed = 30
 mario_start_pos = [screen_width // 2, screen_height - 60]  # 마리오의 초기 위치를 약간 위로 설정
 mario = None
 mario_grabbed = False
@@ -195,6 +200,9 @@ while running:
 
     for obstacle in obstacles:
         screen.blit(block_image, obstacle.topleft)
+
+    # 배경 이미지 그리기 (하단에만 위치)
+    screen.blit(map_image, (0, screen_height - map_image.get_height()))
 
     if mario:
         screen.blit(mario_image, mario_rect.topleft)
