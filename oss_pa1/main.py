@@ -21,7 +21,13 @@ font = pygame.font.Font(None, 74)
 small_font = pygame.font.Font(None, 36)
 
 # 단어 리스트 설정
-words = ["PYTHON", "JAZZ", "APPLE", "BANANA", "CHERRY", "ORANGE", "GRAPE", "LEMON", "LIME", "KIWI", "MANGO", "PEACH", "PIG", "DATE", "OLIVE", "TOMATO", "CARROT"]
+words = ["PYTHON", "JAZZ", "APPLE", "BANANA", "CHERRY", "ORANGE", "GRAPE", "LEMON", "LIME", "KIWI", "MANGO",
+         "PEACH", "PIG", "DATE", "OLIVE", "TOMATO", "CARROT", "DOG", "CAT", "COW", "HEN", "GOAT", "SHEEP",
+         "DUCK", "FISH", "BIRD", "BEE", "ANT", "BELL", "BOOK", "BOOT", "BALL", "BAG", "CUP", "CANE", "COIN",
+         "DEER", "DICE", "DOLL", "DRUM", "FLAG", "FORK", "FROG", "GATE", "GIFT", "HAT", "HUT", "INK", "JAR",
+         "KITE", "LAMP", "MAP", "MOON", "NET", "OWL", "PEN", "POT", "ROSE", "SUN", "TENT", "TOY", "VAN", "WALL",
+         "WAX", "YARN", "ZEBRA"]
+
 current_word = random.choice(words)
 
 # 알파벳 줄 설정
@@ -35,13 +41,14 @@ for _ in range(len(current_word)):
     y = random.randint(50, screen_height // 3)  # 장애물을 화면 상단에 배치
     obstacles.append(pygame.Rect(x, y, 50, 50))
 
-# 공 설정
-ball_radius = 10
-ball_speed = 15
-ball_start_pos = [screen_width // 2, screen_height - 60]  # 공의 초기 위치를 약간 위로 설정
-ball = None
-ball_grabbed = False
-ball_count = 0  # 사용한 공의 횟수
+# 마리오 이미지 설정
+mario_image = pygame.image.load("mario.png")
+mario_rect = mario_image.get_rect()
+mario_speed = 15
+mario_start_pos = [screen_width // 2, screen_height - 60]  # 마리오의 초기 위치를 약간 위로 설정
+mario = None
+mario_grabbed = False
+mario_count = 0  # 사용한 마리오의 횟수
 
 # 게임 루프
 clock = pygame.time.Clock()
@@ -94,10 +101,10 @@ def add_alphabet_line(alphabet_string):
         x += 40
     falling_lines.append(line)
 
-def create_ball():
-    return [ball_start_pos[0], ball_start_pos[1], 0, 0]
+def create_mario():
+    return [mario_start_pos[0], mario_start_pos[1], 0, 0]
 
-ball = create_ball()
+mario = create_mario()
 
 while running:
     for event in pygame.event.get():
@@ -105,14 +112,15 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
             mouse_pos = event.pos
-            if ball and not ball_grabbed and math.hypot(mouse_pos[0] - ball[0], mouse_pos[1] - ball[1]) <= ball_radius:
-                ball_grabbed = True
-        elif event.type == pygame.MOUSEBUTTONUP and ball_grabbed:
-            ball_grabbed = False
+            mario_center = [mario[0] + mario_rect.width // 2, mario[1] + mario_rect.height // 2]
+            if mario and not mario_grabbed and math.hypot(mouse_pos[0] - mario_center[0], mouse_pos[1] - mario_center[1]) <= mario_rect.width // 2:
+                mario_grabbed = True
+        elif event.type == pygame.MOUSEBUTTONUP and mario_grabbed:
+            mario_grabbed = False
             mouse_pos = event.pos
-            ball[2] = ball[0] - mouse_pos[0]
-            ball[3] = ball[1] - mouse_pos[1]
-            ball_count += 1  # 공을 쏠 때마다 카운트 증가
+            mario[2] = mario_center[0] - mouse_pos[0]  # 반대로 당긴 방향으로 발사
+            mario[3] = mario_center[1] - mouse_pos[1]  # 반대로 당긴 방향으로 발사
+            mario_count += 1  # 마리오를 쏠 때마다 카운트 증가
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN and alphabet_line:
                 entered_word = ''.join(alphabet_line)
@@ -125,27 +133,27 @@ while running:
             elif event.unicode.isalpha() and not game_over:
                 alphabet_line.append(event.unicode.upper())
 
-    if ball and not ball_grabbed:
-        norm = math.hypot(ball[2], ball[3])
+    if mario and not mario_grabbed:
+        norm = math.hypot(mario[2], mario[3])
         if norm != 0:
-            ball[0] += ball_speed * ball[2] / norm
-            ball[1] += ball_speed * ball[3] / norm
+            mario[0] += mario_speed * mario[2] / norm
+            mario[1] += mario_speed * mario[3] / norm
 
-        ball_rect = pygame.Rect(ball[0] - ball_radius, ball[1] - ball_radius, ball_radius * 2, ball_radius * 2)
+        mario_rect.topleft = (mario[0], mario[1])
         for i, obstacle in enumerate(obstacles):
-            if ball_rect.colliderect(obstacle):
+            if mario_rect.colliderect(obstacle):
                 falling_lines.append([hidden_alphabets[i]])
                 hidden_alphabets[i].velocity = [0, 5]
                 hidden_alphabets.pop(i)
                 obstacles.pop(i)
-                ball = None
+                mario = None
                 break
 
-        if ball and (ball[0] < 0 or ball[0] > screen_width or ball[1] < 0 or ball[1] > screen_height):
-            ball = None
+        if mario and (mario[0] < 0 or mario[0] > screen_width or mario[1] < 0 or mario[1] > screen_height):
+            mario = None
 
-    if not ball:
-        ball = create_ball()
+    if not mario:
+        mario = create_mario()
 
     for line in falling_lines:
         for alphabet in line:
@@ -167,16 +175,16 @@ while running:
     for obstacle in obstacles:
         pygame.draw.rect(screen, red, obstacle)
 
-    if ball:
-        pygame.draw.circle(screen, white, (int(ball[0]), int(ball[1])), ball_radius)
-        if ball_grabbed:
-            pygame.draw.line(screen, white, (ball[0], ball[1]), pygame.mouse.get_pos())
+    if mario:
+        screen.blit(mario_image, mario_rect.topleft)
+        if mario_grabbed:
+            pygame.draw.line(screen, white, (mario_center[0], mario_center[1]), pygame.mouse.get_pos())
 
-    ball_count_text = small_font.render(f"Balls Used: {ball_count}", True, white)
-    screen.blit(ball_count_text, (10, 10))
+    mario_count_text = small_font.render(f"Marios Used: {mario_count}", True, white)
+    screen.blit(mario_count_text, (10, 10))
 
     if game_over:
-        game_over_text = font.render("YOU WIN!", True, white)
+        game_over_text = font.render(f"YOU WIN! Marios Used: {mario_count}", True, white)
         screen.blit(game_over_text, ((screen_width - game_over_text.get_width()) // 2, screen_height // 2))
 
     pygame.display.flip()
