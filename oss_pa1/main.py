@@ -5,6 +5,7 @@ import math
 import time
 
 pygame.init()
+pygame.mixer.init()  # 사운드 초기화
 
 # 화면 크기 설정
 screen_width = 800
@@ -21,6 +22,15 @@ sky_blue = (135, 206, 235)
 # 폰트 설정
 font = pygame.font.Font(None, 74)
 small_font = pygame.font.Font(None, 36)
+
+# 사운드 로드
+block_hit_sound = pygame.mixer.Sound("blockhit.wav")
+game_over_sound = pygame.mixer.Sound("gameover.wav")
+background_music = "overworld-fast.wav"
+
+# 배경 음악 설정 및 재생
+pygame.mixer.music.load(background_music)
+pygame.mixer.music.play(-1)  # 무한 반복 재생
 
 # 단어 리스트 설정
 words = ["PYTHON", "JAZZ", "APPLE", "BANANA", "CHERRY", "ORANGE", "GRAPE", "LEMON", "LIME", "KIWI", "MANGO",
@@ -72,7 +82,7 @@ mario_image = pygame.image.load("mario.png")
 mario_image = pygame.transform.scale(mario_image, (60, 60)) 
 mario_rect = mario_image.get_rect()
 mario_speed = 30
-mario_start_pos = [screen_width // 2, screen_height - 60]  # 마리오의 초기 위치를 약간 위로 설정
+mario_start_pos = [screen_width // 2 -50, screen_height - 100]  # 마리오의 초기 위치를 약간 위로 설정
 mario = None
 mario_grabbed = False
 mario_count = 0  # 사용한 마리오의 횟수
@@ -161,6 +171,8 @@ while running:
                     alphabet_line = []  # game_over가 되었을 때 입력한 단어 지우기
                     timer_paused = True  # 타이머 정지
                     end_time = time.time() - start_time
+                    pygame.mixer.music.stop()  # 배경 음악 중지
+                    game_over_sound.play()  # 게임 오버 사운드 재생
                 else:
                     alphabet_line = []
             elif event.key == pygame.K_BACKSPACE and alphabet_line:
@@ -177,6 +189,7 @@ while running:
         mario_rect.topleft = (mario[0], mario[1])
         for i, obstacle in enumerate(obstacles):
             if mario_rect.colliderect(obstacle):
+                block_hit_sound.play()  # 블록 히트 사운드 재생
                 falling_lines.append([hidden_alphabets[i]])
                 hidden_alphabets[i].velocity = [0, 5]
                 hidden_alphabets.pop(i)
@@ -219,6 +232,9 @@ while running:
             pygame.draw.line(screen, white, (mario_center[0], mario_center[1]), pygame.mouse.get_pos())
 
     mario_count_text = small_font.render(f"Marios Used: {mario_count}", True, white)
+    mario_count_rect = mario_count_text.get_rect()
+    mario_count_rect.topleft = (10, 10)
+    pygame.draw.rect(screen, black, mario_count_rect.inflate(10, 10))
     screen.blit(mario_count_text, (10, 10))
 
     # 타이머 표시
@@ -239,3 +255,4 @@ while running:
 
 pygame.quit()
 sys.exit()
+
