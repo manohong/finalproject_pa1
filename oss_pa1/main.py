@@ -94,7 +94,7 @@ obstacles = create_obstacles(len(current_word), block_size)
 
 # 마리오 이미지 설정
 mario_image = pygame.image.load("mario.png")
-mario_image = pygame.transform.scale(mario_image, (100, 60)) 
+mario_image = pygame.transform.scale(mario_image, (60, 100)) 
 mario_rect = mario_image.get_rect()
 mario_speed = 30
 mario_start_pos = [screen_width // 2 -50, screen_height - 200]  # 마리오의 초기 위치를 약간 위로 설정
