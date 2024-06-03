@@ -2,6 +2,7 @@ import pygame
 import random
 import sys
 import math
+import time
 
 pygame.init()
 
@@ -76,6 +77,11 @@ mario = None
 mario_grabbed = False
 mario_count = 0  # 사용한 마리오의 횟수
 
+# 게임 타이머 초기화
+start_time = time.time()
+timer_paused = False
+end_time = 0
+
 # 게임 루프
 clock = pygame.time.Clock()
 running = True
@@ -86,7 +92,7 @@ class Alphabet:
         self.char = char
         self.pos = [x, y]
         self.velocity = [0, 5]
-        self.surface = font.render(char, True, white)
+        self.surface = font.render(char, True, black)
         self.grounded = False
 
     def update(self):
@@ -152,6 +158,9 @@ while running:
                 entered_word = ''.join(alphabet_line)
                 if entered_word == current_word:
                     game_over = True
+                    alphabet_line = []  # game_over가 되었을 때 입력한 단어 지우기
+                    timer_paused = True  # 타이머 정지
+                    end_time = time.time() - start_time
                 else:
                     alphabet_line = []
             elif event.key == pygame.K_BACKSPACE and alphabet_line:
@@ -187,10 +196,13 @@ while running:
 
     screen.fill(sky_blue)  # 배경 색상을 하늘색으로 설정
 
+    # 배경 이미지 그리기 (하단에만 위치)
+    screen.blit(map_image, (0, screen_height - map_image.get_height()))
+
     x = (screen_width - len(alphabet_line) * 40) // 2
-    y = screen_height - 150  # 입력된 알파벳 줄 위치 조정
+    y = screen_height - 300  # 입력된 알파벳 줄 위치 조정
     for char in alphabet_line:
-        text = font.render(char, True, white)
+        text = font.render(char, True, black)
         screen.blit(text, (x, y))
         x += 40
 
@@ -201,9 +213,6 @@ while running:
     for obstacle in obstacles:
         screen.blit(block_image, obstacle.topleft)
 
-    # 배경 이미지 그리기 (하단에만 위치)
-    screen.blit(map_image, (0, screen_height - map_image.get_height()))
-
     if mario:
         screen.blit(mario_image, mario_rect.topleft)
         if mario_grabbed:
@@ -212,8 +221,17 @@ while running:
     mario_count_text = small_font.render(f"Marios Used: {mario_count}", True, white)
     screen.blit(mario_count_text, (10, 10))
 
+    # 타이머 표시
+    if not timer_paused:
+        elapsed_time = time.time() - start_time
+    else:
+        elapsed_time = end_time
+    timer_text = small_font.render(f"Time: {elapsed_time:.2f}s", True, white)
+    screen.blit(timer_text, (screen_width - 150, 10))
+
     if game_over:
-        game_over_text = font.render(f"YOU WIN! Marios Used: {mario_count}", True, white)
+        end_time = elapsed_time  # 타이머 정지 후 시간을 저장
+        game_over_text = small_font.render(f"YOU WIN! Time: {end_time:.2f}s Marios Used: {mario_count}", True, white)
         screen.blit(game_over_text, ((screen_width - game_over_text.get_width()) // 2, screen_height // 2))
 
     pygame.display.flip()
@@ -221,4 +239,3 @@ while running:
 
 pygame.quit()
 sys.exit()
-
