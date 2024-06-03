@@ -7,9 +7,9 @@ import time
 pygame.init()
 pygame.mixer.init()  # 사운드 초기화
 
-# 화면 크기 설정
-screen_width = 800
-screen_height = 600
+# 화면 크기 설정
+screen_width = 1366
+screen_height = 1000 
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Falling Alphabet Game")
 
@@ -21,7 +21,7 @@ sky_blue = (135, 206, 235)
 
 # 폰트 설정
 font = pygame.font.Font(None, 74)
-small_font = pygame.font.Font(None, 36)
+small_font = pygame.font.Font(None, 50)
 
 # 사운드 로드
 block_hit_sound = pygame.mixer.Sound("blockhit.wav")
@@ -75,14 +75,29 @@ def create_obstacles(word_length, block_size):
     
     return obstacles
 
+def reset_game():
+    global current_word, obstacles, hidden_alphabets, alphabet_line, falling_lines, mario, mario_count, game_over, start_time, timer_paused, end_time
+    current_word = random.choice(words)
+    obstacles = create_obstacles(len(current_word), block_size)
+    hidden_alphabets = hide_alphabets_behind_obstacles(current_word)
+    alphabet_line = []
+    falling_lines = []
+    mario = create_mario()
+    mario_count = 0
+    game_over = False
+    start_time = time.time()
+    timer_paused = False
+    end_time = 0
+    pygame.mixer.music.play(-1)  # 배경 음악 재생
+
 obstacles = create_obstacles(len(current_word), block_size)
 
 # 마리오 이미지 설정
 mario_image = pygame.image.load("mario.png")
-mario_image = pygame.transform.scale(mario_image, (60, 60)) 
+mario_image = pygame.transform.scale(mario_image, (100, 60)) 
 mario_rect = mario_image.get_rect()
 mario_speed = 30
-mario_start_pos = [screen_width // 2 -50, screen_height - 100]  # 마리오의 초기 위치를 약간 위로 설정
+mario_start_pos = [screen_width // 2 -50, screen_height - 200]  # 마리오의 초기 위치를 약간 위로 설정
 mario = None
 mario_grabbed = False
 mario_count = 0  # 사용한 마리오의 횟수
@@ -179,6 +194,9 @@ while running:
                 alphabet_line.pop()
             elif event.unicode.isalpha() and not game_over:
                 alphabet_line.append(event.unicode.upper())
+        elif event.type == pygame.MOUSEBUTTONDOWN and game_over:
+            if retry_button.collidepoint(event.pos):
+                reset_game()
 
     if mario and not mario_grabbed:
         norm = math.hypot(mario[2], mario[3])
@@ -243,16 +261,21 @@ while running:
     else:
         elapsed_time = end_time
     timer_text = small_font.render(f"Time: {elapsed_time:.2f}s", True, white)
-    screen.blit(timer_text, (screen_width - 150, 10))
+    screen.blit(timer_text, (screen_width - 220, 10))
 
     if game_over:
         end_time = elapsed_time  # 타이머 정지 후 시간을 저장
         game_over_text = small_font.render(f"YOU WIN! Time: {end_time:.2f}s Marios Used: {mario_count}", True, white)
         screen.blit(game_over_text, ((screen_width - game_over_text.get_width()) // 2, screen_height // 2))
+        
+        retry_button = pygame.Rect((screen_width - 200) // 2, screen_height // 2 + 50, 200, 50)
+        pygame.draw.rect(screen, black, retry_button)
+        retry_text = small_font.render("Retry", True, white)
+        retry_text_rect = retry_text.get_rect(center=retry_button.center)
+        screen.blit(retry_text, retry_text_rect)
 
     pygame.display.flip()
     clock.tick(30)
 
 pygame.quit()
 sys.exit()
-
