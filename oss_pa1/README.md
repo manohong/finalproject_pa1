@@ -83,8 +83,11 @@ python3 main.py
 # 실행 예시
 
 <span style="color:red">1.게임 시작 후 마리오를 잡아당겨 발사</span>
+
 <span style="color:red">2.마리오가 벽돌을 맞출 시 알파벳 등장</span>
+
 <span style="color:red">3.알파벳을 조합하여 단어를 유추한 후 enter키 => 정답일시 게임종료화면</span>
+
 ![게임 실행 영상-1](https://github.com/manohong/finalproject_pa1/assets/164157143/03d5136f-8a92-4932-ab7d-daf67819ceed)
 
 ![게임 실행 영상-2](https://github.com/manohong/finalproject_pa1/assets/164157143/33e1fe0f-b506-4083-8dc0-949aaadcd003)
