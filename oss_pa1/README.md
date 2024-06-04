@@ -96,20 +96,41 @@ python3 main.py
 
 ## main.py
 
+## game.py
+
+### class FallingAlphabetGame:
+
+- Description : 전체적인 게임을 관리하는 클래스
+  1. Def **init** : 모든ui, 폰트크기, 화면 크기 초기화
+  2. Def reset_game : 게임 재실행시 객체 초기화
+  3. Def load_assets : obstacles와 map크기를 불러옴
+  4. Def handle_event : 마리오 발사 기능, 알파벳 입력 및 정답확인 기능, 게임 재실행 기능을 담음
+  5. Def update : 마리오 클래스의 update함수 사용
+  6. Def draw : 변화하는 ui를 실제로 세팅하는 단계
+
+## mario.py
+
+### class Mario
+
+- Description : 메인 캐릭터의 위치 관련 클래스
+  1. Def **init** : 마리오의 이미지를 불러와 위치와 크기 초기화하는 단계
+  2. Def reset : 마리오가 발사되어 사라졌을 때 다시 마리오의 위치를 초기값으로 위치
+  3. Def update : 마리오가 발사되어 벽돌에 부딪히는 애니메이션 생성
+
+## obstacles.py
+
+### def create_obstacles
+
+- Description : 위치를 고려하여 벽돌을 생성, 벽돌끼리 겹치지 않게 하기,알파벳의 크기가 벽돌보다 클 시 벽돌 수정
+
+## alphabet.py
+
 ### class Alphabet
 
 - Description : 게임의 주 컨텐츠인 알파벳의 위치 관련 클래스
   1. Def **init** : 최초 게임시작시 알파벳을 초기화하는 단계, 알파벳의 해당 위치에 해당 외형을 위치하고 바닥으로 떨어지지 않게끔 함
   2. Def update : Alphabet 객체가 화면에서 아래로 떨어지는 동작을 업데이트함, 이때 객체가 바닥이나 벽돌에 닿으면 멈추게 함
   3. Def draw : 알파벳을 그려주는 단계
-
-### def create_obstacles
-
-- Description : 위치를 고려하여 벽돌을 생성, 벽돌끼리 겹치지 않게 하기,알파벳의 크기가 벽돌보다 클 시 벽돌 수정
-
-### def reset_game
-
-- Description : 게임 재실행시 객체 초기화
 
 ### def hide_alphabets_behind_obstacles
 
@@ -119,31 +140,43 @@ python3 main.py
 
 - Description : user가 알파벳을 입력할 때 화면에 송출
 
-### def create_mario
+## timer.py
 
-- Description : 마리오 객체를 처음 위치로 초기화
+### class Timer
 
-## block.png
+- Description : 게임의 주 컨텐츠인 알파벳의 위치 관련 클래스
+  1. Def **init** : 최초 게임시작시 타이머를 초기화하는 단계
+  2. Def start : 타이머 시작
+  3. Def pause : 타이머 멈춤
+  4. Def resume : 타이머 재개
+  5. Def stop : 타이머를 끝냄
+  6. Def get_elapsed_time : 게임이 끝났을 때 타이머의 시간을 반환
+
+## picture
+
+### block.png
 
 - Description : 알파벳을 보관할 벽돌 사진 파일
 
-## map.png
+### map.png
 
 - Description : 백그라운드 사진 파일
 
-## mario.png
+### mario.png
 
 - Description : 캐릭터 사진 파일
 
-## gameover.wav
+## sound
+
+### gameover.wav
 
 - Description : 게임 종료시 나오는 음악
 
-## blockhit.wav
+### blockhit.wav
 
 - Description : 벽돌이 부서지고 알파벳이 떨어질 때 나오는 음악
 
-## overworld-fast.wav
+### overworld-fast.wav
 
 - Description : 게임 수행 중 나오는 음악
 
